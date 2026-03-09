@@ -1,0 +1,327 @@
+basePath: /
+definitions:
+  AddNewSubscriptionParams:
+    description: Тело запроса
+    properties:
+      end_date:
+        description: Дата окончания подписки в формате год-месяц
+        type: string
+      name:
+        description: Название подписки
+        type: string
+      price:
+        description: Цена за подписку в месяц
+        minimum: 0
+        type: integer
+      start_date:
+        description: Дата начала подписки в формате год-месяц
+        type: string
+      user_id:
+        description: ID пользователя в формате UUID
+        type: string
+    required:
+    - name
+    - price
+    - start_date
+    - user_id
+    type: object
+  AddNewSubscriptionResponse:
+    description: Тело ответа
+    properties:
+      id:
+        description: ID подписки в системе
+        type: string
+    type: object
+  ErrorResponse:
+    description: Тело ответа при ошибке
+    properties:
+      message:
+        description: Описание ошибки
+        type: string
+      status:
+        description: Статус код
+        type: integer
+    type: object
+  GetSubscriptionResponse:
+    description: Тело ответа
+    properties:
+      end_date:
+        description: Дата окончания подписки в формате год-месяц
+        type: string
+      id:
+        description: ID подписки в формате UUID
+        type: string
+      name:
+        description: Название подписки
+        type: string
+      price:
+        description: Цена за подписку в месяц
+        type: integer
+      start_date:
+        description: Дата начала подписки в формате год-месяц
+        type: string
+      user_id:
+        description: ID пользователя в формате UUID
+        type: string
+    type: object
+  ListSubscriptionsResponse:
+    description: Тело ответа
+    properties:
+      list:
+        description: Список подписок
+        items:
+          $ref: '#/definitions/GetSubscriptionResponse'
+        type: array
+    type: object
+  TotalCostResponse:
+    description: Тело ответа
+    properties:
+      total:
+        description: Суммарная стоимость подписок
+        type: integer
+    type: object
+  UpdateSubscriptionParams:
+    description: Тело запроса
+    properties:
+      end_date:
+        description: Дата окончания подписки в формате год-месяц
+        type: string
+      name:
+        description: Название подписки
+        type: string
+      price:
+        description: Цена за подписку в месяц
+        minimum: 0
+        type: integer
+      start_date:
+        description: Дата начала подписки в формате год-месяц
+        type: string
+    type: object
+  httphandlers.SuccessResponse:
+    description: Тело ответа при успехе
+    properties:
+      data: {}
+    type: object
+info:
+  contact: {}
+  description: API для управления подписками
+  title: Subscriptions API
+  version: "1.0"
+paths:
+  /api/subscription/:
+    get:
+      description: Получение всех записей о подписках
+      parameters:
+      - description: Количество записей
+        in: query
+        name: limit
+        required: true
+        type: integer
+      - description: Смещение
+        in: query
+        name: offset
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/httphandlers.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/ListSubscriptionsResponse'
+              type: object
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      summary: Список подписок
+      tags:
+      - Subscription
+    post:
+      consumes:
+      - application/json
+      description: Создает запись о новой подписке
+      parameters:
+      - description: Тело запроса
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/AddNewSubscriptionParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/httphandlers.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/AddNewSubscriptionResponse'
+              type: object
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      summary: Добавление новой подписки
+      tags:
+      - Subscription
+  /api/subscription/{id}:
+    delete:
+      description: Удаление записи о подписке по ее ID
+      parameters:
+      - description: ID подписки
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      summary: Удаление подписки
+      tags:
+      - Subscription
+    get:
+      description: Получение записи о подписке по ее ID
+      parameters:
+      - description: ID подписки
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/httphandlers.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/GetSubscriptionResponse'
+              type: object
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      summary: Получение подписки
+      tags:
+      - Subscription
+    patch:
+      consumes:
+      - application/json
+      description: Обновляет запись о подписке по ее ID
+      parameters:
+      - description: ID подписки
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Тело запроса
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/UpdateSubscriptionParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      summary: Обновление подписки
+      tags:
+      - Subscription
+  /api/subscription/total_cost:
+    get:
+      description: Посчитать суммарную стоимость подписок за период
+      parameters:
+      - description: Дата начала подписки в формате год-месяц
+        in: query
+        name: from
+        required: true
+        type: string
+      - description: Дата окончания подписки в формате год-месяц
+        in: query
+        name: to
+        required: true
+        type: string
+      - description: ID пользователя в формате UUID
+        in: query
+        name: user_id
+        type: string
+      - description: Название подписки
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/httphandlers.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/TotalCostResponse'
+              type: object
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      summary: Суммарная стоимость
+      tags:
+      - Subscription
+swagger: "2.0"
