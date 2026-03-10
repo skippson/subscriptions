@@ -10,3 +10,5 @@ create table if not exists subscriptions (
     created_at timestamp with time zone not null default now(),
     updated_at timestamp with time zone not null default now()
 );
+
+create index idx_subscriptions_user_id_name on subscriptions(user_id,name);

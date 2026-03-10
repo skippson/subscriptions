@@ -10,6 +10,8 @@ import (
 	"github.com/gofrs/uuid"
 )
 
+const maxWorkers = 20
+
 type Repository interface {
 	Save(ctx context.Context, sub models.Subscription) (uuid.UUID, error)
 	GetByID(ctx context.Context, id uuid.UUID) (models.Subscription, error)
@@ -120,45 +122,25 @@ func startWorkers(workers int, wg *sync.WaitGroup, subs <-chan models.Subscripti
 			}
 		}()
 	}
-
-	// for s := range subs {
-	// 	wg.Add(1)
-	// 	go func() {
-	// 		defer wg.Done()
-
-	// 		cost := s.Price.Value * utils.MonthsBetween(s.StartDate.Value, s.EndDate.Value)
-
-	// 		result <- cost
-	// 	}()
-	// }
-}
-
-func startWork(subs []models.Subscription, ch chan<- models.Subscription) {
-	for _, s := range subs {
-		ch <- s
-	}
-
-	close(ch)
 }
 
 func filtAndTransform(subs []models.Subscription, dateFrom, dateTo time.Time) []models.Subscription {
 	i := 0
 	for _, s := range subs {
-		if !s.EndDate.Valid || s.EndDate.Value.After(dateFrom) {
-
-			if s.StartDate.Valid {
-				if s.StartDate.Value.Before(dateFrom) {
-					s.StartDate.Value = dateFrom
-				}
-			}
-
-			if !s.EndDate.Valid || dateTo.Before(s.EndDate.Value) {
-				s.EndDate.Value = dateTo
-			}
-
-			subs[i] = s
-			i++
+		if s.EndDate.Value.Before(dateFrom) || !s.StartDate.Valid || s.StartDate.Value.After(dateTo) {
+			continue
 		}
+
+		if s.StartDate.Value.Before(dateFrom) {
+			s.StartDate.Value = dateFrom
+		}
+
+		if !s.EndDate.Valid || s.EndDate.Value.After(dateTo) {
+			s.EndDate.Value = dateTo
+		}
+
+		subs[i] = s
+		i++
 	}
 
 	subs = subs[:i]
@@ -181,14 +163,21 @@ func (uc *Usecase) GetTotalCost(ctx context.Context, params models.TotalCostPara
 
 	subs = filtAndTransform(subs, params.DateFrom.Value, params.DateTo.Value)
 
+	workers := min(len(subs), maxWorkers)
+	if workers == 0 {
+		return 0, nil
+	}
 	subsCh := make(chan models.Subscription, len(subs))
-	costCh := make(chan int, len(subs))
+	costCh := make(chan int, workers)
 	wg := sync.WaitGroup{}
 
-	go startWork(subs, subsCh)
-
-	workers := 10
 	startWorkers(workers, &wg, subsCh, costCh)
+
+	for _, s := range subs {
+		subsCh <- s
+	}
+
+	close(subsCh)
 
 	go func() {
 		wg.Wait()

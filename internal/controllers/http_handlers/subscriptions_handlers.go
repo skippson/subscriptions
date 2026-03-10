@@ -238,6 +238,7 @@ func (h *ApiHandlers) DeleteSubscription() fiber.Handler {
 //	@Param 			limit 			query 		int 					true 						"Количество записей"
 //	@Param 			offset 			query 		int 					true 						"Смещение"
 //	@Success		200				{object}	SuccessResponse{data=ListSubscriptionsResponse}		"OK"
+//	@Success		204																				"No content"
 //	@Failure		400				{object}	ErrorResponse										"Bad request"
 //	@Failure		500				{object}	ErrorResponse										"Internal Server Error"
 //	@Router			/api/subscription/ [get]
@@ -258,7 +259,11 @@ func (h *ApiHandlers) ListSubscriptions() fiber.Handler {
 			return writeError(c, fiber.StatusInternalServerError, "internal error")
 		}
 
-		var resp []GetSubscriptionResponse
+		if len(subs) == 0 {
+			c.SendStatus(fiber.StatusNoContent)
+		}
+
+		resp := make([]GetSubscriptionResponse, 0, len(subs))
 		for _, s := range subs {
 			resp = append(resp, newGetSubscriptionResponse(s))
 		}

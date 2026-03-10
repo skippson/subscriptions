@@ -2,7 +2,6 @@ package httphandlers
 
 import (
 	"subscriptions/internal/models"
-	"time"
 
 	"github.com/gofrs/uuid"
 )
@@ -22,7 +21,7 @@ type GetSubscriptionResponse struct {
 	UserID uuid.UUID `json:"user_id" swaggertype:"string"`
 
 	// Дата начала подписки в формате год-месяц
-	StartDate time.Time `json:"start_date" swaggertype:"string"`
+	StartDate string `json:"start_date"`
 
 	// Название подписки
 	Name string `json:"name"`
@@ -31,7 +30,7 @@ type GetSubscriptionResponse struct {
 	Price int `json:"price"`
 
 	// Дата окончания подписки в формате год-месяц
-	EndDate *time.Time `json:"end_date,omitempty" swaggertype:"string"`
+	EndDate *string `json:"end_date,omitempty" swaggertype:"string"`
 } // @name GetSubscriptionResponse
 
 func newGetSubscriptionResponse(sub models.Subscription) GetSubscriptionResponse {
@@ -40,11 +39,12 @@ func newGetSubscriptionResponse(sub models.Subscription) GetSubscriptionResponse
 		UserID:    sub.UserID.Value,
 		Name:      sub.Name.Value,
 		Price:     sub.Price.Value,
-		StartDate: sub.StartDate.Value,
+		StartDate: sub.StartDate.Value.Format("2006-01"),
 	}
 
 	if sub.EndDate.Valid {
-		resp.EndDate = &sub.EndDate.Value
+		endDate := sub.EndDate.Value.Format("2006-01")
+		resp.EndDate = &endDate
 	}
 
 	return resp

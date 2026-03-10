@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	_ "subscriptions/docs"
 	httphandlers "subscriptions/internal/controllers/http_handlers"
 	"subscriptions/internal/controllers/http_handlers/middleware"
 	"subscriptions/pkg/logger"
@@ -13,8 +14,8 @@ import (
 )
 
 type Server struct {
-	app     *fiber.App
-	log     logger.Logger
+	app *fiber.App
+	log logger.Logger
 }
 
 func NewServer(h *httphandlers.ApiHandlers, log logger.Logger) *Server {
@@ -46,7 +47,7 @@ func addHealthCheck(app *fiber.App) {
 
 func addSwagger(router fiber.Router) {
 	swCfg := swagger.Config{
-		URL: "api/swagger/doc.json",
+		URL: "/api/swagger/doc.json",
 	}
 
 	router.Get("/swagger/*", swagger.New(swCfg))
@@ -57,7 +58,6 @@ func addSwagger(router fiber.Router) {
 //	@title 						Subscriptions API
 //	@version 					1.0
 //	@description				API для управления подписками
-//	@BasePath 					/
 func (s *Server) Run(ctx context.Context, address string) error {
 	errCh := make(chan error, 1)
 

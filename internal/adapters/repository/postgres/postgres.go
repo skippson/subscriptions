@@ -91,7 +91,8 @@ func (r *PostgresRepository) GetByID(ctx context.Context, id uuid.UUID) (models.
 func (r *PostgresRepository) GetByFilter(ctx context.Context, sub models.Subscription) ([]models.Subscription, error) {
 	builder := squirrel.Select("id, name, price, user_id, start_date, end_date").
 		From("subscriptions").
-		PlaceholderFormat(squirrel.Dollar)
+		PlaceholderFormat(squirrel.Dollar).
+		OrderBy("start_date desc")
 
 	if sub.Name.Valid {
 		builder = builder.Where("name = ?", sub.Name.Value)
@@ -189,7 +190,7 @@ func (r *PostgresRepository) DeleteByID(ctx context.Context, id uuid.UUID) error
 func (r *PostgresRepository) List(ctx context.Context, limit, offset int) ([]models.Subscription, error) {
 	query := `select id, name, price, user_id, start_date, end_date
 	from subscriptions
-	order by created_at
+	order by start_date desc
 	offset $1
 	limit $2`
 

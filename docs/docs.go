@@ -60,6 +60,9 @@ const docTemplate = `{
                             ]
                         }
                     },
+                    "204": {
+                        "description": "No content"
+                    },
                     "400": {
                         "description": "Bad request",
                         "schema": {
@@ -507,7 +510,7 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "",
-	BasePath:         "/",
+	BasePath:         "",
 	Schemes:          []string{},
 	Title:            "Subscriptions API",
 	Description:      "API для управления подписками",

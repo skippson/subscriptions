@@ -19,7 +19,7 @@ type AddNewSubscriptionParams struct {
 	Name string `json:"name" validate:"required"`
 
 	// Цена за подписку в месяц
-	Price int `json:"price" validate:"required,gte=0"`
+	Price int `json:"price" validate:"gte=0"`
 
 	// Дата окончания подписки в формате год-месяц
 	EndDate *string `json:"end_date,omitempty" validate:"omitempty,year-month" swaggertype:"string"`
@@ -48,16 +48,16 @@ func (p AddNewSubscriptionParams) mapToModel() models.Subscription {
 // @Description Тело запроса
 type UpdateSubscriptionParams struct {
 	// Название подписки
-	Name      *string `json:"name,omitempty" validate:"omitempty" swaggertype:"string"`
+	Name *string `json:"name,omitempty" validate:"omitempty" swaggertype:"string"`
 
 	// Дата начала подписки в формате год-месяц
 	StartDate *string `json:"start_date,omitempty" validate:"omitempty,year-month" swaggertype:"string"`
 
 	// Дата окончания подписки в формате год-месяц
-	EndDate   *string `json:"end_date,omitempty" validate:"omitempty,year-month" swaggertype:"string"`
+	EndDate *string `json:"end_date,omitempty" validate:"omitempty,year-month" swaggertype:"string"`
 
 	// Цена за подписку в месяц
-	Price     *int    `json:"price,omitempty" validate:"omitempty,gte=0" swaggertype:"integer"`
+	Price *int `json:"price,omitempty" validate:"omitempty,gte=0" swaggertype:"integer"`
 } // @name UpdateSubscriptionParams
 
 func (p UpdateSubscriptionParams) mapToModel(id uuid.UUID) models.Subscription {
