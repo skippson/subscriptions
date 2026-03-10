@@ -368,7 +368,6 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "name",
-                "price",
                 "start_date",
                 "user_id"
             ],

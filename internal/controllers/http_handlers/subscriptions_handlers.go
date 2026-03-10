@@ -260,7 +260,7 @@ func (h *ApiHandlers) ListSubscriptions() fiber.Handler {
 		}
 
 		if len(subs) == 0 {
-			c.SendStatus(fiber.StatusNoContent)
+			return c.SendStatus(fiber.StatusNoContent)
 		}
 
 		resp := make([]GetSubscriptionResponse, 0, len(subs))

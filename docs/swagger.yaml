@@ -20,7 +20,6 @@ definitions:
         type: string
     required:
     - name
-    - price
     - start_date
     - user_id
     type: object
